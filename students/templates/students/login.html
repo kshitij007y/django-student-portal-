@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Student Portal - Log in</title>
+<style>
+:root{--bg:#eef3f1;--surface:#ffffff;--ink:#14302b;--muted:#5b726d;--line:#cfdcd8;--brand:#0f6b5c;--brand-ink:#ffffff;--accent:#f2b134;--err:#b3261e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,Segoe UI,Roboto,sans-serif;min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+.shell{width:100%;max-width:820px;display:grid;grid-template-columns:1fr 1.2fr;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.side{background:var(--brand);color:var(--brand-ink);padding:40px 32px}
+.side h1{font-size:2rem;margin:0 0 12px}
+.side p{margin:0;opacity:.92}
+.main{padding:40px 32px}
+.main h2{margin:0 0 20px;border-bottom:3px solid var(--accent);display:inline-block;padding-bottom:6px}
+.main p{margin:0 0 14px}
+.main label{display:block;font-weight:600;margin-bottom:5px}
+.main input{width:100%;padding:11px 12px;font-size:1rem;border:1.5px solid var(--line);border-radius:8px}
+.main input:focus{outline:3px solid var(--accent)}
+.submit{width:100%;padding:13px;font-size:1.02rem;font-weight:700;background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;cursor:pointer;margin-top:8px}
+.errorlist{color:var(--err);list-style:none;padding:0;margin:0 0 8px;font-size:.9rem}
+@media (max-width:720px){.shell{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <h1>Student Portal</h1>
+    <p>Log in to see and manage the student list.</p>
+  </aside>
+  <main class="main">
+    <h2>Log in</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button class="submit" type="submit">Log in</button>
+    </form>
+  </main>
+</div>
+</body>
+</html>

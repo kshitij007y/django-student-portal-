@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Student Portal – Register & Log in</title>
+<style>
+:root{
+  --bg:#eef3f1; --surface:#ffffff; --ink:#14302b; --muted:#5b726d;
+  --line:#cfdcd8; --brand:#0f6b5c; --brand-ink:#ffffff; --accent:#f2b134;
+  --err:#b3261e; --ok:#17663a;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0d1b18; --surface:#142621; --ink:#e6f1ee; --muted:#93aaa4; --line:#2a423d;
+    --brand:#3cc2a8; --brand-ink:#08211c; --accent:#f2b134; --err:#ff8a80; --ok:#6fdc9c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0d1b18; --surface:#142621; --ink:#e6f1ee; --muted:#93aaa4; --line:#2a423d;
+  --brand:#3cc2a8; --brand-ink:#08211c; --accent:#f2b134; --err:#ff8a80; --ok:#6fdc9c;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:"Source Serif 4",Georgia,"Times New Roman",serif;line-height:1.55;min-height:100vh;display:grid;place-items:center;padding:24px 16px}
+h1,h2,label,button,.tabs,.hint,.msg,.who{font-family:"Atkinson Hyperlegible",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.shell{width:100%;max-width:880px;display:grid;grid-template-columns:1fr 1.2fr;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.side{background:var(--brand);color:var(--brand-ink);padding:40px 32px;display:flex;flex-direction:column;justify-content:space-between;gap:24px}
+.side h1{font-size:2rem;line-height:1.15;margin:0 0 12px;font-weight:700}
+.side p{margin:0;max-width:30ch;opacity:.92}
+.card-id{border:2px dashed currentColor;border-radius:10px;padding:14px 16px;font-family:"Atkinson Hyperlegible",system-ui,sans-serif;opacity:.95}
+.card-id b{display:block;font-size:1.05rem}
+.card-id span{font-size:.85rem;opacity:.85}
+.main{padding:32px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);margin-bottom:24px}
+.tabs button{background:none;border:0;border-bottom:3px solid transparent;padding:10px 16px;font-size:1rem;color:var(--muted);cursor:pointer;font-weight:600}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{margin-bottom:14px}
+label{display:block;font-size:.9rem;font-weight:600;margin-bottom:5px}
+input,select{width:100%;padding:11px 12px;font:inherit;font-size:1rem;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:8px}
+input:focus,select:focus,button:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.hint{font-size:.8rem;color:var(--muted);margin-top:4px}
+.field.bad input,.field.bad select{border-color:var(--err)}
+.err{color:var(--err);font-size:.82rem;margin-top:4px;min-height:0;font-family:"Atkinson Hyperlegible",system-ui,sans-serif}
+.pw{position:relative}
+.pw button{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:0;color:var(--brand);font-weight:600;cursor:pointer;padding:6px 8px;font-size:.85rem}
+.submit{width:100%;padding:13px;font-size:1.02rem;font-weight:700;background:var(--brand);color:var(--brand-ink);border:0;border-radius:8px;cursor:pointer;margin-top:6px}
+.submit:hover{filter:brightness(1.08)}
+.msg{margin:0 0 16px;padding:10px 12px;border-radius:8px;font-size:.92rem;display:none}
+.msg.show{display:block}
+.msg.error{background:color-mix(in srgb,var(--err) 14%,transparent);color:var(--err)}
+.msg.success{background:color-mix(in srgb,var(--ok) 14%,transparent);color:var(--ok)}
+.welcome h2{margin:0 0 6px;font-size:1.5rem}
+.welcome dl{display:grid;grid-template-columns:auto 1fr;gap:8px 16px;margin:20px 0;font-family:"Atkinson Hyperlegible",system-ui,sans-serif}
+.welcome dt{color:var(--muted)} .welcome dd{margin:0;font-weight:600}
+[hidden]{display:none!important}
+@media (max-width:720px){
+  .shell{grid-template-columns:1fr}
+  .side{padding:24px}
+  .main{padding:24px 20px}
+  .row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="side">
+    <div>
+      <h1>Student Portal</h1>
+      <p>Create your account with your roll number, then log in to see your profile.</p>
+    </div>
+    <div class="card-id" aria-hidden="true"><b>Your login is your roll number</b><span>Passwords are hashed in this browser before saving.</span></div>
+  </aside>
+
+  <main class="main">
+    <div id="auth">
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tab-login" aria-selected="true" aria-controls="login">Log in</button>
+        <button role="tab" id="tab-reg" aria-selected="false" aria-controls="register">Register</button>
+      </div>
+      <p id="msg" class="msg" role="alert"></p>
+
+      <form id="login" novalidate>
+        <div class="field">
+          <label for="l-roll">Roll number</label>
+          <input id="l-roll" autocomplete="username" required>
+          <div class="err"></div>
+        </div>
+        <div class="field">
+          <label for="l-pass">Password</label>
+          <div class="pw"><input id="l-pass" type="password" autocomplete="current-password" required><button type="button" data-toggle="l-pass">Show</button></div>
+          <div class="err"></div>
+        </div>
+        <button class="submit" type="submit">Log in</button>
+      </form>
+
+      <form id="register" novalidate hidden>
+        <div class="field">
+          <label for="r-name">Full name</label>
+          <input id="r-name" autocomplete="name" required>
+          <div class="err"></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="r-roll">Roll number</label>
+            <input id="r-roll" required>
+            <div class="err"></div>
+          </div>
+          <div class="field">
+            <label for="r-year">Year</label>
+            <select id="r-year" required>
+              <option value="">Select</option><option>1st year</option><option>2nd year</option><option>3rd year</option><option>4th year</option>
+            </select>
+            <div class="err"></div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="r-course">Course</label>
+          <input id="r-course" placeholder="e.g. MCA" required>
+          <div class="err"></div>
+        </div>
+        <div class="field">
+          <label for="r-email">Email</label>
+          <input id="r-email" type="email" autocomplete="email" required>
+          <div class="err"></div>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="r-pass">Password</label>
+            <div class="pw"><input id="r-pass" type="password" autocomplete="new-password" required><button type="button" data-toggle="r-pass">Show</button></div>
+            <div class="hint">8+ characters with a letter and a number.</div>
+            <div class="err"></div>
+          </div>
+          <div class="field">
+            <label for="r-pass2">Confirm password</label>
+            <input id="r-pass2" type="password" autocomplete="new-password" required>
+            <div class="err"></div>
+          </div>
+        </div>
+        <button class="submit" type="submit">Create account</button>
+      </form>
+    </div>
+
+    <section id="welcome" class="welcome" hidden>
+      <h2 id="w-name"></h2>
+      <p class="who">You're logged in.</p>
+      <dl>
+        <dt>Roll number</dt><dd id="w-roll"></dd>
+        <dt>Course</dt><dd id="w-course"></dd>
+        <dt>Year</dt><dd id="w-year"></dd>
+        <dt>Email</dt><dd id="w-email"></dd>
+      </dl>
+      <button class="submit" id="logout" type="button">Log out</button>
+    </section>
+  </main>
+</div>
+
+<script>
+(function(){
+  var USERS_KEY="sp_users", SESSION_KEY="sp_session";
+  var $=function(id){return document.getElementById(id)};
+  var memUsers={}, memSession=null; // fallback if storage is unavailable
+
+  function loadUsers(){
+    try{var v=localStorage.getItem(USERS_KEY);return v?JSON.parse(v):{}}catch(e){return memUsers}
+  }
+  function saveUsers(u){
+    memUsers=u;
+    try{localStorage.setItem(USERS_KEY,JSON.stringify(u))}catch(e){}
+  }
+  function getSession(){
+    try{return sessionStorage.getItem(SESSION_KEY)}catch(e){return memSession}
+  }
+  function setSession(r){
+    memSession=r;
+    try{r?sessionStorage.setItem(SESSION_KEY,r):sessionStorage.removeItem(SESSION_KEY)}catch(e){}
+  }
+
+  async function hash(pw,salt){
+    var data=new TextEncoder().encode(salt+":"+pw);
+    var buf=await crypto.subtle.digest("SHA-256",data);
+    return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
+  }
+  function newSalt(){
+    var a=new Uint8Array(16);crypto.getRandomValues(a);
+    return Array.from(a).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
+  }
+
+  function message(text,type){
+    var m=$("msg");m.textContent=text;m.className="msg show "+type;
+  }
+  function clearMessage(){$("msg").className="msg";$("msg").textContent=""}
+  function setErr(input,text){
+    var f=input.closest(".field");f.classList.toggle("bad",!!text);
+    f.querySelector(".err").textContent=text||"";
+  }
+  function clearErrors(form){
+    form.querySelectorAll(".field").forEach(function(f){f.classList.remove("bad");f.querySelector(".err").textContent=""});
+  }
+
+  function showTab(which){
+    var login=which==="login";
+    $("login").hidden=!login;$("register").hidden=login;
+    $("tab-login").setAttribute("aria-selected",login);
+    $("tab-reg").setAttribute("aria-selected",!login);
+    clearMessage();
+  }
+  $("tab-login").onclick=function(){showTab("login")};
+  $("tab-reg").onclick=function(){showTab("register")};
+
+  document.querySelectorAll("[data-toggle]").forEach(function(b){
+    b.onclick=function(){
+      var i=$(b.dataset.toggle),show=i.type==="password";
+      i.type=show?"text":"password";b.textContent=show?"Hide":"Show";
+    };
+  });
+
+  function showWelcome(roll){
+    var u=loadUsers()[roll];
+    if(!u){setSession(null);return false}
+    $("w-name").textContent="Welcome, "+u.name;
+    $("w-roll").textContent=u.roll;$("w-course").textContent=u.course;
+    $("w-year").textContent=u.year;$("w-email").textContent=u.email;
+    $("auth").hidden=true;$("welcome").hidden=false;
+    return true;
+  }
+
+  $("register").addEventListener("submit",async function(e){
+    e.preventDefault();clearMessage();clearErrors(this);
+    var name=$("r-name"),roll=$("r-roll"),year=$("r-year"),course=$("r-course"),
+        email=$("r-email"),pw=$("r-pass"),pw2=$("r-pass2"),ok=true;
+    function need(el,cond,text){if(!cond){setErr(el,text);ok=false}}
+    need(name,name.value.trim().length>=3,"Enter your full name.");
+    need(roll,/^[A-Za-z0-9\-\/]{4,20}$/.test(roll.value.trim()),"Use 4–20 letters, numbers, - or /.");
+    need(year,!!year.value,"Choose your year.");
+    need(course,course.value.trim().length>=2,"Enter your course.");
+    need(email,/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value.trim()),"Enter a valid email address.");
+    need(pw,/^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(pw.value),"Use 8+ characters with a letter and a number.");
+    need(pw2,pw.value===pw2.value,"Passwords don't match.");
+    if(!ok)return;
+
+    var users=loadUsers(),key=roll.value.trim().toUpperCase();
+    if(users[key]){setErr(roll,"This roll number is already registered.");return}
+    var salt=newSalt();
+    users[key]={roll:key,name:name.value.trim(),year:year.value,course:course.value.trim(),
+      email:email.value.trim().toLowerCase(),salt:salt,hash:await hash(pw.value,salt)};
+    saveUsers(users);
+    this.reset();
+    showTab("login");
+    $("l-roll").value=key;
+    message("Account created. Log in with your roll number and password.","success");
+    $("l-pass").focus();
+  });
+
+  $("login").addEventListener("submit",async function(e){
+    e.preventDefault();clearMessage();clearErrors(this);
+    var roll=$("l-roll"),pw=$("l-pass"),ok=true;
+    if(!roll.value.trim()){setErr(roll,"Enter your roll number.");ok=false}
+    if(!pw.value){setErr(pw,"Enter your password.");ok=false}
+    if(!ok)return;
+    var key=roll.value.trim().toUpperCase(),u=loadUsers()[key];
+    if(!u||(await hash(pw.value,u.salt))!==u.hash){
+      message("Roll number or password is incorrect.","error");return;
+    }
+    setSession(key);pw.value="";showWelcome(key);
+  });
+
+  $("logout").onclick=function(){
+    setSession(null);$("welcome").hidden=true;$("auth").hidden=false;
+    showTab("login");message("You've been logged out.","success");
+  };
+
+  var s=getSession();if(s)showWelcome(s);
+})();
+</script>
+</body>
+</html>
